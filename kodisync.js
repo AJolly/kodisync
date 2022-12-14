@@ -66,6 +66,9 @@ function earliestPosition(hosts) {
 	return hosts.reduce((acc, host) => Math.min(acc, host.position), Infinity);
 }
 
+function furthestPosition(hosts) {
+	return hosts.reduce((acc, host) => Math.max(acc, host.position), Infinity);
+}
 class Host {
 	constructor(hoststring) {
 		this.hoststring = hoststring;
@@ -228,7 +231,7 @@ async function run() {
 		const unsyncedCount = hosts.reduce((acc, host) => acc + (host.syncState == null ? 1 : 0), 0);
 
 		// If two or more are unsynced,
-		// pause everybody and seek to the earliest timestamp
+		// pause everybody and seek to the furthest timestamp
 		if (unsyncedCount > 1) {
 			console.log("Syncing all together");
 			await Promise.all(hosts.map(async (host) => {
@@ -237,7 +240,7 @@ async function run() {
 				}
 				await host.updatePlaybackStatus();
 			}));
-			const target = earliestPosition(hosts);
+			const target = furthestPosition(hosts);  //Change to syncing to furthest timestamp
 			await Promise.all(hosts.map(async (host) => {
 				await host.seek(target);
 			}));
